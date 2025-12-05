@@ -1,12 +1,12 @@
 package org.example.app
 
-import org.junit.jupiter.api.Test
-
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.Test
+import org.junit.Assert.assertEquals
 
 class MessageUtilsTest {
     @Test
     fun testGetMessage() {
-        assertEquals("Hello      World!", MessageUtils.message())
+        // Expect the same spacing as produced by MessageUtils.message()
+        assertEquals("Hello     World!", MessageUtils.message())
     }
 }

@@ -1,6 +1,11 @@
 androidApplication {
     namespace = "org.example.app"
 
+    // Enable Jetpack Compose compiler plugin via Declarative Gradle DSL
+    compose {
+        enabled = true
+    }
+
     dependencies {
         implementation("org.apache.commons:commons-text:1.11.0")
         implementation(project(":utilities"))
@@ -25,5 +30,12 @@ androidApplication {
         // Tooling (only used in debug but included explicitly to ensure previews compile)
         implementation("androidx.compose.ui:ui-tooling:1.7.4")
         implementation("androidx.compose.ui:ui-test-manifest:1.7.4")
+    }
+
+    // Declarative testing block to add unit test dependencies
+    testing {
+        dependencies {
+            implementation("junit:junit:4.13.2")
+        }
     }
 }
