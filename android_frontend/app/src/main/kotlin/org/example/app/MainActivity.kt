@@ -44,7 +44,7 @@ private fun AppNav(
                 onOpenProfile = { /* TODO: navigate to details in future */ }
             )
         }
-        // Keep this simple to avoid inline method signature mismatches from Box$default
+        // Add profile screen
         composable("add_profile") {
             Text(text = "Create new profile")
         }
