@@ -16,8 +16,6 @@ import org.example.app.ui.home.HomeScreen
 import org.example.app.ui.theme.AppTheme
 import androidx.compose.material3.Text
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.Box
-import androidx.compose.ui.Alignment
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,10 +44,9 @@ private fun AppNav(
                 onOpenProfile = { /* TODO: navigate to details in future */ }
             )
         }
+        // Keep this simple to avoid inline method signature mismatches from Box$default
         composable("add_profile") {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(text = "Create new profile")
-            }
+            Text(text = "Create new profile")
         }
     }
 }

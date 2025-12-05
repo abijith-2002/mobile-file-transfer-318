@@ -2,12 +2,13 @@ package org.example.app.ui.home
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ElevatedCard
@@ -53,14 +54,16 @@ fun HomeScreen(
             }
         }
     ) { padding ->
-        LazyColumn(
+        val scrollState = rememberScrollState()
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding),
-            contentPadding = PaddingValues(16.dp),
+                .padding(padding)
+                .padding(16.dp)
+                .verticalScroll(scrollState),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(profiles, key = { it.id }) { profile ->
+            profiles.forEach { profile ->
                 ProfileCard(
                     profile = profile,
                     onClick = { onOpenProfile(profile) },
@@ -80,7 +83,7 @@ private fun ProfileCard(
     ElevatedCard(
         modifier = modifier.clickable(onClick = onClick)
     ) {
-        androidx.compose.foundation.layout.Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(16.dp)) {
             Text(
                 text = profile.name,
                 style = MaterialTheme.typography.titleMedium,
@@ -114,14 +117,16 @@ private fun HomePreviewLight(
 ) {
     AppTheme(dynamicColor = false) {
         Scaffold { padding ->
-            LazyColumn(
+            val scrollState = rememberScrollState()
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(padding),
-                contentPadding = PaddingValues(16.dp),
+                    .padding(padding)
+                    .padding(16.dp)
+                    .verticalScroll(scrollState),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(samples, key = { it.id }) { profile ->
+                samples.forEach { profile ->
                     ProfileCard(profile = profile, onClick = {})
                 }
             }
@@ -136,14 +141,16 @@ private fun HomePreviewDark(
 ) {
     AppTheme(dynamicColor = false, useDarkTheme = true) {
         Scaffold { padding ->
-            LazyColumn(
+            val scrollState = rememberScrollState()
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(padding),
-                contentPadding = PaddingValues(16.dp),
+                    .padding(padding)
+                    .padding(16.dp)
+                    .verticalScroll(scrollState),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(samples, key = { it.id }) { profile ->
+                samples.forEach { profile ->
                     ProfileCard(profile = profile, onClick = {})
                 }
             }
