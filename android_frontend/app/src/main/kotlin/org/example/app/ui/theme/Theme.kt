@@ -23,24 +23,17 @@ private val FallbackLight = lightColorScheme()
 private val FallbackDark = darkColorScheme()
 
 /**
- * Try to build a FontFamily for "Reddit Sans" using the Play Services Google Fonts provider.
- *
- * This implementation avoids referencing any R.array resource directly (which can fail to
- * resolve during compilation in some setups). Instead, it resolves the certificate array ID
- * at runtime via getIdentifier. If the array cannot be found, returns null so callers can
- * gracefully fallback to bundled/system fonts.
+ * Build a FontFamily for "Reddit Sans" using the Play Services Google Fonts provider, with
+ * a safe runtime lookup for certificate resources. Falls back to system sans-serif if
+ * provider is unavailable.
  */
 private fun tryBuildGoogleFontFamily(context: Context): FontFamily? {
-    // Resolve Google Play Services certificate array resource dynamically to avoid direct R.array reference
     val certsResId = context.resources.getIdentifier(
         "com_google_android_gms_fonts_certs",
         "array",
         context.packageName
     )
-    if (certsResId == 0) {
-        // Certificates resource not available – cannot safely use the provider
-        return null
-    }
+    if (certsResId == 0) return null
 
     val provider = GoogleFont.Provider(
         providerAuthority = "com.google.android.gms.fonts",
@@ -57,7 +50,6 @@ private fun tryBuildGoogleFontFamily(context: Context): FontFamily? {
 }
 
 private fun redditSansTypography(context: Context): Typography {
-    // Prefer Reddit Sans via Google Fonts; if unavailable, fallback to a safe system sans-serif
     val redditSansOrFallback = tryBuildGoogleFontFamily(context) ?: FontFamily.SansSerif
 
     return Typography(
@@ -80,18 +72,6 @@ private fun redditSansTypography(context: Context): Typography {
 }
 
 // PUBLIC_INTERFACE
-/**
- * AppTheme configures Material 3 theming for the app.
- *
- * - Uses dynamic color on Android 12+ (when enabled).
- * - Prefers the "Reddit Sans" Google Font via the Play Services provider with a safe runtime
- *   certificate lookup. If unavailable, falls back to the system sans-serif family.
- * - Avoids direct references to array resources (e.g., R.array.*) and ResourcesCompat APIs.
- *
- * @param useDarkTheme Whether to use the dark color scheme when dynamic color is disabled.
- * @param dynamicColor Whether to enable Material You dynamic color on Android 12+.
- * @param content The composable tree to render inside the theme.
- */
 @Composable
 fun AppTheme(
     useDarkTheme: Boolean = isSystemInDarkTheme(),
