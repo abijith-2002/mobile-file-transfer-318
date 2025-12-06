@@ -18,7 +18,8 @@ include("utilities")
 defaults {
     androidApplication {
         jdkVersion = 17
-        compileSdk = 34
+        compileSdk = 36
+        targetSdk = 36
         minSdk = 30
 
         versionCode = 1
@@ -35,7 +36,7 @@ defaults {
 
     androidLibrary {
         jdkVersion = 17
-        compileSdk = 34
+        compileSdk = 36
         minSdk = 30
 
         testing {

@@ -1,5 +1,7 @@
 androidApplication {
     namespace = "org.example.app"
+    compileSdk = 36
+    targetSdk = 36
 
     // Enable Jetpack Compose compiler plugin via Declarative Gradle DSL
     compose {
