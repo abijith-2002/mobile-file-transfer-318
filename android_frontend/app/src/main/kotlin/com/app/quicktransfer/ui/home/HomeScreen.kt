@@ -3,7 +3,6 @@ package com.app.quicktransfer.ui.home
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -13,7 +12,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -32,15 +30,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 
-@OptIn(ExperimentalMaterial3Api::class)
 // PUBLIC_INTERFACE
 /**
- * Home screen that lists saved connection profiles with a top app bar and add-profile FAB.
+ * Home screen that lists saved connection profiles with an add-profile FAB (no top app bar).
  *
  * Parameters:
  * - onAddProfile: Called when the user taps the add action.
  * - onOpenProfile: Called when the user taps a profile card.
- * - repository: Data source that provides the profiles.
+ *
+ * Behavior:
+ * - Observes profiles from the shared repository and renders a list of cards.
+ * - Each card shows Profile Name and IP address.
  *
  * Returns:
  * - None. Renders the UI.
@@ -48,22 +48,11 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 @Composable
 fun HomeScreen(
     onAddProfile: () -> Unit,
-    onOpenProfile: (Profile) -> Unit,
-    repository: ProfileRepository = ProfileRepository()
+    onOpenProfile: (Profile) -> Unit
 ) {
-    val profiles by repository.profiles.collectAsState()
+    val profiles by ProfileRepository.profiles.collectAsState()
 
     Scaffold(
-        topBar = {
-            androidx.compose.material3.TopAppBar(
-                title = {
-                    Text(
-                        text = "Connections",
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                }
-            )
-        },
         floatingActionButton = {
             FloatingActionButton(onClick = onAddProfile) {
                 Icon(imageVector = Icons.Filled.Add, contentDescription = "Add profile")
@@ -79,6 +68,11 @@ fun HomeScreen(
                 .verticalScroll(scrollState),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            Text(
+                text = "Connections",
+                style = MaterialTheme.typography.headlineSmall
+            )
+
             profiles.forEach { profile ->
                 ProfileCard(
                     profile = profile,
@@ -110,7 +104,7 @@ private fun ProfileCard(
                 overflow = TextOverflow.Ellipsis
             )
             Text(
-                text = "${profile.host}:${profile.port}",
+                text = profile.host, // Show IP/Host only as requested
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
@@ -145,6 +139,10 @@ private fun HomePreviewLight(
                     .verticalScroll(scrollState),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+                Text(
+                    text = "Connections",
+                    style = MaterialTheme.typography.headlineSmall
+                )
                 samples.forEach { profile ->
                     ProfileCard(profile = profile, onClick = {})
                 }
@@ -169,6 +167,10 @@ private fun HomePreviewDark(
                     .verticalScroll(scrollState),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+                Text(
+                    text = "Connections",
+                    style = MaterialTheme.typography.headlineSmall
+                )
                 samples.forEach { profile ->
                     ProfileCard(profile = profile, onClick = {})
                 }

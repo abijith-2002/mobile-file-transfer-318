@@ -3,6 +3,7 @@ package com.app.quicktransfer.ui.home
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,8 +26,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,26 +39,27 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import com.app.quicktransfer.data.ProfileRepository
 
 /**
  * A screen for creating a new connection profile. It includes Material 3 input fields
  * for Profile Name, Host Username, Host IP, Port, and Password, all styled with 16dp
  * rounded corners and a 2dp border, and an Elevated Save button centered horizontally.
  *
+ * Behavior:
+ * - Save is disabled if any field is empty.
+ * - On Save, persists the profile via ProfileRepository and navigates back (calls onBack()).
+ *
  * Parameters:
- * - onSave: Callback invoked when user presses Save. Provides the entered values:
- *           name, username, host, port, password.
  * - modifier: Optional modifier for this screen.
- * - onBack: Callback invoked when the user taps the back navigation icon in the top app bar.
+ * - onBack: Callback invoked when the user taps the back icon or after successful save.
  *
  * Returns:
  * - None. Renders the UI.
  */
  // PUBLIC_INTERFACE
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewProfileScreen(
-    onSave: (name: String, username: String, host: String, port: Int, password: String) -> Unit = { _, _, _, _, _ -> },
     modifier: Modifier = Modifier,
     onBack: () -> Unit = {}
 ) {
@@ -74,23 +74,7 @@ fun NewProfileScreen(
     val scrollState = rememberScrollState()
     val shape = RoundedCornerShape(16.dp)
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "New Profile",
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                }
-            )
-        }
-    ) { padding ->
+    Scaffold { padding ->
         Column(
             modifier = modifier
                 .fillMaxSize()
@@ -99,11 +83,19 @@ fun NewProfileScreen(
                 .verticalScroll(scrollState),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(
-                text = "Create new profile",
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onBackground
-            )
+            // Simple custom header row (no TopAppBar)
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = onBack) {
+                    Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Back")
+                }
+                Text(
+                    text = "New Profile",
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(start = 4.dp)
+                )
+            }
 
             // Profile Name
             BorderedTextField(
@@ -166,7 +158,14 @@ fun NewProfileScreen(
             ElevatedButton(
                 onClick = {
                     val port = portText.toIntOrNull() ?: 22
-                    onSave(profileName.trim(), hostUsername.trim(), hostIp.trim(), port, password)
+                    ProfileRepository.addProfile(
+                        name = profileName.trim(),
+                        username = hostUsername.trim(),
+                        host = hostIp.trim(),
+                        port = port,
+                        password = password
+                    )
+                    onBack()
                 },
                 elevation = ButtonDefaults.elevatedButtonElevation(),
                 enabled = profileName.isNotBlank() &&
