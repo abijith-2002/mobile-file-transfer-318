@@ -34,6 +34,17 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 
 @OptIn(ExperimentalMaterial3Api::class)
 // PUBLIC_INTERFACE
+/**
+ * Home screen that lists saved connection profiles with a top app bar and add-profile FAB.
+ *
+ * Parameters:
+ * - onAddProfile: Called when the user taps the add action.
+ * - onOpenProfile: Called when the user taps a profile card.
+ * - repository: Data source that provides the profiles.
+ *
+ * Returns:
+ * - None. Renders the UI.
+ */
 @Composable
 fun HomeScreen(
     onAddProfile: () -> Unit,
@@ -43,6 +54,16 @@ fun HomeScreen(
     val profiles by repository.profiles.collectAsState()
 
     Scaffold(
+        topBar = {
+            androidx.compose.material3.TopAppBar(
+                title = {
+                    Text(
+                        text = "Connections",
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                }
+            )
+        },
         floatingActionButton = {
             FloatingActionButton(onClick = onAddProfile) {
                 Icon(imageVector = Icons.Filled.Add, contentDescription = "Add profile")

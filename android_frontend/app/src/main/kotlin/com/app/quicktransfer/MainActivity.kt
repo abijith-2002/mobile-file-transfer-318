@@ -50,7 +50,8 @@ private fun AppNav(
                 onSave = { _, _, _, _, _ ->
                     // For now, simply return to previous screen after "Save"
                     navController.popBackStack()
-                }
+                },
+                onBack = { navController.popBackStack() }
             )
         }
     }

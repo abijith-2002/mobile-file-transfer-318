@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.ButtonDefaults
@@ -20,9 +21,12 @@ import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,7 +42,6 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 
 /**
- * PUBLIC_INTERFACE
  * A screen for creating a new connection profile. It includes Material 3 input fields
  * for Profile Name, Host Username, Host IP, Port, and Password, all styled with 16dp
  * rounded corners and a 2dp border, and an Elevated Save button centered horizontally.
@@ -47,15 +50,18 @@ import androidx.compose.ui.unit.dp
  * - onSave: Callback invoked when user presses Save. Provides the entered values:
  *           name, username, host, port, password.
  * - modifier: Optional modifier for this screen.
+ * - onBack: Callback invoked when the user taps the back navigation icon in the top app bar.
  *
  * Returns:
  * - None. Renders the UI.
  */
-// PUBLIC_INTERFACE
+ // PUBLIC_INTERFACE
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewProfileScreen(
     onSave: (name: String, username: String, host: String, port: Int, password: String) -> Unit = { _, _, _, _, _ -> },
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onBack: () -> Unit = {}
 ) {
     // Local state as no ViewModel/state hoisting is present for this screen yet
     var profileName by remember { mutableStateOf("") }
@@ -68,92 +74,111 @@ fun NewProfileScreen(
     val scrollState = rememberScrollState()
     val shape = RoundedCornerShape(16.dp)
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp)
-            .verticalScroll(scrollState),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        Text(
-            text = "Create new profile",
-            style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.onBackground
-        )
-
-        // Profile Name
-        BorderedTextField(
-            value = profileName,
-            onValueChange = { profileName = it },
-            label = "Profile Name",
-            shape = shape,
-            modifier = Modifier.fillMaxWidth(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
-        )
-
-        // Host Username
-        BorderedTextField(
-            value = hostUsername,
-            onValueChange = { hostUsername = it },
-            label = "Host Username",
-            shape = shape,
-            modifier = Modifier.fillMaxWidth(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
-        )
-
-        // Host IP (allow decimal keyboard for dot entry)
-        BorderedTextField(
-            value = hostIp,
-            onValueChange = { hostIp = it },
-            label = "Host IP",
-            shape = shape,
-            modifier = Modifier.fillMaxWidth(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
-        )
-
-        // Port (numeric)
-        BorderedTextField(
-            value = portText,
-            onValueChange = { text ->
-                // Accept only digits
-                if (text.all { it.isDigit() }) {
-                    portText = text
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "New Profile",
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Back")
+                    }
                 }
-            },
-            label = "Port",
-            shape = shape,
-            modifier = Modifier.fillMaxWidth(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-        )
-
-        // Password (mask with toggle)
-        BorderedPasswordField(
-            value = password,
-            onValueChange = { password = it },
-            label = "Password",
-            shape = shape,
-            modifier = Modifier.fillMaxWidth(),
-            passwordVisible = passwordVisible,
-            onToggleVisibility = { passwordVisible = !passwordVisible }
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        ElevatedButton(
-            onClick = {
-                val port = portText.toIntOrNull() ?: 22
-                onSave(profileName.trim(), hostUsername.trim(), hostIp.trim(), port, password)
-            },
-            elevation = ButtonDefaults.elevatedButtonElevation(),
-            enabled = profileName.isNotBlank() &&
-                hostUsername.isNotBlank() &&
-                hostIp.isNotBlank() &&
-                portText.isNotBlank() &&
-                password.isNotBlank(),
-            // Center horizontally, keep wrap-content width
-            modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+        }
+    ) { padding ->
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(16.dp)
+                .verticalScroll(scrollState),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(text = "Save")
+            Text(
+                text = "Create new profile",
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+
+            // Profile Name
+            BorderedTextField(
+                value = profileName,
+                onValueChange = { profileName = it },
+                label = "Profile Name",
+                shape = shape,
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+            )
+
+            // Host Username
+            BorderedTextField(
+                value = hostUsername,
+                onValueChange = { hostUsername = it },
+                label = "Host Username",
+                shape = shape,
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+            )
+
+            // Host IP (allow decimal keyboard for dot entry)
+            BorderedTextField(
+                value = hostIp,
+                onValueChange = { hostIp = it },
+                label = "Host IP",
+                shape = shape,
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+            )
+
+            // Port (numeric)
+            BorderedTextField(
+                value = portText,
+                onValueChange = { text ->
+                    // Accept only digits
+                    if (text.all { it.isDigit() }) {
+                        portText = text
+                    }
+                },
+                label = "Port",
+                shape = shape,
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            )
+
+            // Password (mask with toggle)
+            BorderedPasswordField(
+                value = password,
+                onValueChange = { password = it },
+                label = "Password",
+                shape = shape,
+                modifier = Modifier.fillMaxWidth(),
+                passwordVisible = passwordVisible,
+                onToggleVisibility = { passwordVisible = !passwordVisible }
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            ElevatedButton(
+                onClick = {
+                    val port = portText.toIntOrNull() ?: 22
+                    onSave(profileName.trim(), hostUsername.trim(), hostIp.trim(), port, password)
+                },
+                elevation = ButtonDefaults.elevatedButtonElevation(),
+                enabled = profileName.isNotBlank() &&
+                    hostUsername.isNotBlank() &&
+                    hostIp.isNotBlank() &&
+                    portText.isNotBlank() &&
+                    password.isNotBlank(),
+                // Center horizontally, keep wrap-content width
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            ) {
+                Text(text = "Save")
+            }
         }
     }
 }
