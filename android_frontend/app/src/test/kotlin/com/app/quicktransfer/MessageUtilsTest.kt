@@ -1,4 +1,4 @@
-package org.example.app
+package com.app.quicktransfer
 
 import org.junit.Test
 import org.junit.Assert.assertEquals

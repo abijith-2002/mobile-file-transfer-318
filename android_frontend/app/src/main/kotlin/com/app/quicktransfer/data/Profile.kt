@@ -1,4 +1,4 @@
-package org.example.app.data
+package com.app.quicktransfer.data
 
 // PUBLIC_INTERFACE
 data class Profile(

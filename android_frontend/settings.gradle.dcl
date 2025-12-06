@@ -24,7 +24,7 @@ defaults {
 
         versionCode = 1
         versionName = "0.1"
-        applicationId = "org.gradle.experimental.android.app"
+        applicationId = "com.app.quicktransfer"
 
         testing {
             dependencies {

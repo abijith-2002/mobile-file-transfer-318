@@ -1,5 +1,5 @@
 androidApplication {
-    namespace = "org.example.app"
+    namespace = "com.app.quicktransfer"
     compileSdk = 36
     targetSdk = 36
 

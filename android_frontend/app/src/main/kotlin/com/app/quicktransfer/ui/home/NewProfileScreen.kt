@@ -1,4 +1,4 @@
-package org.example.app.ui.home
+package com.app.quicktransfer.ui.home
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement

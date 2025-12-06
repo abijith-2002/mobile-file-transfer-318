@@ -1,4 +1,4 @@
-package org.example.app
+package com.app.quicktransfer
 
 import android.os.Build
 import android.os.Bundle
@@ -12,8 +12,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import org.example.app.ui.home.HomeScreen
-import org.example.app.ui.theme.AppTheme
+import com.app.quicktransfer.ui.home.HomeScreen
+import com.app.quicktransfer.ui.theme.AppTheme
 import androidx.compose.material3.Text
 import androidx.compose.foundation.layout.fillMaxSize
 
@@ -46,7 +46,7 @@ private fun AppNav(
         }
         // Add profile screen
         composable("add_profile") {
-            org.example.app.ui.home.NewProfileScreen(
+            com.app.quicktransfer.ui.home.NewProfileScreen(
                 onSave = { _, _, _, _, _ ->
                     // For now, simply return to previous screen after "Save"
                     navController.popBackStack()

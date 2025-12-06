@@ -1,4 +1,4 @@
-package org.example.app.ui.theme
+package com.app.quicktransfer.ui.theme
 
 import android.content.Context
 import android.os.Build
