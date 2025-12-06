@@ -46,7 +46,12 @@ private fun AppNav(
         }
         // Add profile screen
         composable("add_profile") {
-            Text(text = "Create new profile")
+            org.example.app.ui.home.NewProfileScreen(
+                onSave = { _, _, _, _, _ ->
+                    // For now, simply return to previous screen after "Save"
+                    navController.popBackStack()
+                }
+            )
         }
     }
 }
