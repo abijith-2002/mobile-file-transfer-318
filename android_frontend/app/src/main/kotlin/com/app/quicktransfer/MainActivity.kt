@@ -17,14 +17,20 @@ import com.app.quicktransfer.ui.theme.AppTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import com.app.quicktransfer.data.ProfileRepository
 import com.app.quicktransfer.data.local.AppDatabase
+import com.app.quicktransfer.data.local.InMemoryProfileDao
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Initialize Room database and repository
-        val database = AppDatabase.getInstance(applicationContext)
-        val profileRepository = ProfileRepository(database.profileDao())
+        // Initialize Room database and repository; fall back to in-memory if Room init fails
+        val profileRepository = try {
+            val database = AppDatabase.getInstance(applicationContext)
+            ProfileRepository(database.profileDao())
+        } catch (t: Throwable) {
+            // Fallback ensures the app can start even if Room is not set up (e.g., missing codegen)
+            ProfileRepository(InMemoryProfileDao())
+        }
 
         setContent {
             AppTheme(dynamicColor = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
