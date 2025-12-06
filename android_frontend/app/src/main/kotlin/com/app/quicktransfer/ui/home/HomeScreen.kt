@@ -35,11 +35,12 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
  * Home screen that lists saved connection profiles with an add-profile FAB (no top app bar).
  *
  * Parameters:
+ * - repository: Room-backed repository used to observe profiles.
  * - onAddProfile: Called when the user taps the add action.
  * - onOpenProfile: Called when the user taps a profile card.
  *
  * Behavior:
- * - Observes profiles from the shared repository and renders a list of cards.
+ * - Observes profiles from the repository and renders a list of cards.
  * - Each card shows Profile Name and IP address.
  *
  * Returns:
@@ -47,10 +48,11 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
  */
 @Composable
 fun HomeScreen(
+    repository: ProfileRepository,
     onAddProfile: () -> Unit,
     onOpenProfile: (Profile) -> Unit
 ) {
-    val profiles by ProfileRepository.profiles.collectAsState()
+    val profiles by repository.profiles.collectAsState(initial = emptyList())
 
     Scaffold(
         floatingActionButton = {

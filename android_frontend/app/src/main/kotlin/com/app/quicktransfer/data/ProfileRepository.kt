@@ -1,52 +1,68 @@
 package com.app.quicktransfer.data
 
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import java.util.UUID
+import com.app.quicktransfer.data.local.ProfileDao
+import com.app.quicktransfer.data.local.ProfileEntity
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
+// PUBLIC_INTERFACE
 /**
- * Simple in-memory repository for profiles shared across the app.
- * This is a lightweight store; replace with persistent storage (e.g., DataStore) later as needed.
+ * Repository backed by Room for managing connection profiles.
+ *
+ * Exposes a Flow<List<Profile>> for observation and suspend functions for mutations.
  */
-object ProfileRepository {
-    private val _profiles = MutableStateFlow<List<Profile>>(
-        listOf(
-            Profile(id = "1", name = "Home Server", host = "192.168.1.10", port = 22),
-            Profile(id = "2", name = "Workstation", host = "10.0.0.5", port = 22)
-        )
-    )
-    val profiles: StateFlow<List<Profile>> = _profiles.asStateFlow()
+class ProfileRepository(
+    private val dao: ProfileDao
+) {
 
     // PUBLIC_INTERFACE
     /**
-     * Adds a new profile to the repository and emits updated list.
-     *
-     * @param name Display name of the profile.
-     * @param username Host username.
-     * @param host Host/IP address.
-     * @param port SSH port.
-     * @param password Password for the host.
-     * @param id Optional fixed ID; if blank a UUID is generated.
-     * @return The created Profile.
+     * Observes all profiles from the database as domain models.
      */
-    fun addProfile(
+    val profiles: Flow<List<Profile>> =
+        dao.getAll().map { list -> list.map { it.toDomain() } }
+
+    // PUBLIC_INTERFACE
+    /**
+     * Persists a new profile in the database.
+     *
+     * Parameters:
+     * - name: Display name
+     * - username: SSH username
+     * - host: Host/IP address
+     * - port: SSH port
+     * - password: Plaintext password (temporary; replace with secure storage)
+     *
+     * Returns:
+     * - The inserted row ID.
+     */
+    suspend fun addProfile(
         name: String,
         username: String,
         host: String,
         port: Int,
-        password: String,
-        id: String = ""
-    ): Profile {
-        val profile = Profile(
-            id = if (id.isNotBlank()) id else UUID.randomUUID().toString(),
-            name = name,
-            host = host,
-            port = port,
+        password: String
+    ): Long {
+        val entity = ProfileEntity(
+            profileName = name,
             username = username,
+            hostIp = host,
+            port = port,
             password = password
         )
-        _profiles.value = _profiles.value + profile
-        return profile
+        return dao.insert(entity)
     }
 }
+
+/**
+ * Maps a Room entity to the domain model.
+ */
+private fun ProfileEntity.toDomain(): Profile =
+    Profile(
+        id = id.toString(),
+        name = profileName,
+        host = hostIp,
+        port = port,
+        username = username,
+        password = password
+    )

@@ -34,6 +34,11 @@ androidApplication {
         // Tooling (only used in debug but included explicitly to ensure previews compile)
         implementation("androidx.compose.ui:ui-tooling:1.7.4")
         implementation("androidx.compose.ui:ui-test-manifest:1.7.4")
+
+        // Room persistence library
+        implementation("androidx.room:room-runtime:2.6.1")
+        implementation("androidx.room:room-ktx:2.6.1")
+
     }
 
     // Declarative testing block to add unit test dependencies

@@ -15,17 +15,24 @@ import androidx.navigation.compose.rememberNavController
 import com.app.quicktransfer.ui.home.HomeScreen
 import com.app.quicktransfer.ui.theme.AppTheme
 import androidx.compose.foundation.layout.fillMaxSize
+import com.app.quicktransfer.data.ProfileRepository
+import com.app.quicktransfer.data.local.AppDatabase
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Initialize Room database and repository
+        val database = AppDatabase.getInstance(applicationContext)
+        val profileRepository = ProfileRepository(database.profileDao())
+
         setContent {
             AppTheme(dynamicColor = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    AppNav()
+                    AppNav(repository = profileRepository)
                 }
             }
         }
@@ -34,11 +41,13 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun AppNav(
+    repository: ProfileRepository,
     navController: NavHostController = rememberNavController()
 ) {
     NavHost(navController = navController, startDestination = "home") {
         composable("home") {
             HomeScreen(
+                repository = repository,
                 onAddProfile = { navController.navigate("add_profile") },
                 onOpenProfile = { /* TODO: navigate to details in future */ }
             )
@@ -46,6 +55,7 @@ private fun AppNav(
         // Add profile screen
         composable("add_profile") {
             com.app.quicktransfer.ui.home.NewProfileScreen(
+                repository = repository,
                 onBack = { navController.popBackStack() }
             )
         }

@@ -30,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,6 +41,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.app.quicktransfer.data.ProfileRepository
+import kotlinx.coroutines.launch
 
 /**
  * A screen for creating a new connection profile. It includes Material 3 input fields
@@ -51,6 +53,7 @@ import com.app.quicktransfer.data.ProfileRepository
  * - On Save, persists the profile via ProfileRepository and navigates back (calls onBack()).
  *
  * Parameters:
+ * - repository: Room-backed repository used to persist the profile.
  * - modifier: Optional modifier for this screen.
  * - onBack: Callback invoked when the user taps the back icon or after successful save.
  *
@@ -60,6 +63,7 @@ import com.app.quicktransfer.data.ProfileRepository
  // PUBLIC_INTERFACE
 @Composable
 fun NewProfileScreen(
+    repository: ProfileRepository,
     modifier: Modifier = Modifier,
     onBack: () -> Unit = {}
 ) {
@@ -73,6 +77,7 @@ fun NewProfileScreen(
 
     val scrollState = rememberScrollState()
     val shape = RoundedCornerShape(16.dp)
+    val scope = rememberCoroutineScope()
 
     Scaffold { padding ->
         Column(
@@ -158,14 +163,16 @@ fun NewProfileScreen(
             ElevatedButton(
                 onClick = {
                     val port = portText.toIntOrNull() ?: 22
-                    ProfileRepository.addProfile(
-                        name = profileName.trim(),
-                        username = hostUsername.trim(),
-                        host = hostIp.trim(),
-                        port = port,
-                        password = password
-                    )
-                    onBack()
+                    scope.launch {
+                        repository.addProfile(
+                            name = profileName.trim(),
+                            username = hostUsername.trim(),
+                            host = hostIp.trim(),
+                            port = port,
+                            password = password
+                        )
+                        onBack()
+                    }
                 },
                 elevation = ButtonDefaults.elevatedButtonElevation(),
                 enabled = profileName.isNotBlank() &&
