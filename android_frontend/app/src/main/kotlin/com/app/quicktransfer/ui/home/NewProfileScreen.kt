@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
@@ -27,9 +28,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -39,7 +41,7 @@ import androidx.compose.ui.unit.dp
  * PUBLIC_INTERFACE
  * A screen for creating a new connection profile. It includes Material 3 input fields
  * for Profile Name, Host Username, Host IP, Port, and Password, all styled with 16dp
- * rounded corners and a 3dp border, and an Elevated Save button.
+ * rounded corners and a 2dp border, and an Elevated Save button centered horizontally.
  *
  * Parameters:
  * - onSave: Callback invoked when user presses Save. Provides the entered values:
@@ -65,7 +67,6 @@ fun NewProfileScreen(
 
     val scrollState = rememberScrollState()
     val shape = RoundedCornerShape(16.dp)
-    val borderColor = MaterialTheme.colorScheme.outline
 
     Column(
         modifier = modifier
@@ -148,7 +149,9 @@ fun NewProfileScreen(
                 hostUsername.isNotBlank() &&
                 hostIp.isNotBlank() &&
                 portText.isNotBlank() &&
-                password.isNotBlank()
+                password.isNotBlank(),
+            // Center horizontally, keep wrap-content width
+            modifier = Modifier.align(Alignment.CenterHorizontally)
         ) {
             Text(text = "Save")
         }
@@ -156,7 +159,7 @@ fun NewProfileScreen(
 }
 
 /**
- * A Material 3 TextField wrapped with a 3dp border and 16dp rounded corners.
+ * A Material 3 TextField wrapped with a 2dp border and 16dp rounded corners.
  */
 @Composable
 private fun BorderedTextField(
@@ -172,7 +175,7 @@ private fun BorderedTextField(
         value = value,
         onValueChange = onValueChange,
         modifier = modifier
-            .border(width = 3.dp, color = borderColor, shape = shape)
+            .border(width = 2.dp, color = borderColor, shape = shape)
             .clip(shape),
         label = { Text(text = label) },
         singleLine = true,
@@ -183,12 +186,16 @@ private fun BorderedTextField(
             focusedContainerColor = MaterialTheme.colorScheme.surface,
             unfocusedContainerColor = MaterialTheme.colorScheme.surface,
             disabledContainerColor = MaterialTheme.colorScheme.surface,
+            // Keep the visible stroke consistent by hiding the built-in indicator
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+            disabledIndicatorColor = Color.Transparent
         )
     )
 }
 
 /**
- * A Material 3 Password TextField with visibility toggle, wrapped with 3dp border and 16dp corners.
+ * A Material 3 Password TextField with visibility toggle, wrapped with 2dp border and 16dp corners.
  */
 @Composable
 private fun BorderedPasswordField(
@@ -208,7 +215,7 @@ private fun BorderedPasswordField(
         value = value,
         onValueChange = onValueChange,
         modifier = modifier
-            .border(width = 3.dp, color = borderColor, shape = shape)
+            .border(width = 2.dp, color = borderColor, shape = shape)
             .clip(shape),
         label = { Text(text = label) },
         singleLine = true,
@@ -226,6 +233,10 @@ private fun BorderedPasswordField(
             focusedContainerColor = MaterialTheme.colorScheme.surface,
             unfocusedContainerColor = MaterialTheme.colorScheme.surface,
             disabledContainerColor = MaterialTheme.colorScheme.surface,
+            // Hide the built-in indicator line to present a consistent 2dp stroke
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+            disabledIndicatorColor = Color.Transparent
         )
     )
 }
