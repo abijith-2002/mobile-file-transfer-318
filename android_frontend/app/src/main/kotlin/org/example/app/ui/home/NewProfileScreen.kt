@@ -39,7 +39,7 @@ import androidx.compose.ui.unit.dp
  * PUBLIC_INTERFACE
  * A screen for creating a new connection profile. It includes Material 3 input fields
  * for Profile Name, Host Username, Host IP, Port, and Password, all styled with 16dp
- * rounded corners and a 4dp border, and an Elevated Save button.
+ * rounded corners and a 3dp border, and an Elevated Save button.
  *
  * Parameters:
  * - onSave: Callback invoked when user presses Save. Provides the entered values:
@@ -152,7 +152,7 @@ fun NewProfileScreen(
 }
 
 /**
- * A Material 3 TextField wrapped with a 4dp border and 16dp rounded corners.
+ * A Material 3 TextField wrapped with a 3dp border and 16dp rounded corners.
  */
 @Composable
 private fun BorderedTextField(
@@ -168,7 +168,7 @@ private fun BorderedTextField(
         value = value,
         onValueChange = onValueChange,
         modifier = modifier
-            .border(width = 4.dp, color = borderColor, shape = shape)
+            .border(width = 3.dp, color = borderColor, shape = shape)
             .clip(shape),
         label = { Text(text = label) },
         singleLine = true,
@@ -184,7 +184,7 @@ private fun BorderedTextField(
 }
 
 /**
- * A Material 3 Password TextField with visibility toggle, wrapped with 4dp border and 16dp corners.
+ * A Material 3 Password TextField with visibility toggle, wrapped with 3dp border and 16dp corners.
  */
 @Composable
 private fun BorderedPasswordField(
