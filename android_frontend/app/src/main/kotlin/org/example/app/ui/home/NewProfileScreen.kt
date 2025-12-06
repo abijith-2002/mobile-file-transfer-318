@@ -144,7 +144,11 @@ fun NewProfileScreen(
                 onSave(profileName.trim(), hostUsername.trim(), hostIp.trim(), port, password)
             },
             elevation = ButtonDefaults.elevatedButtonElevation(),
-            modifier = Modifier.fillMaxWidth()
+            enabled = profileName.isNotBlank() &&
+                hostUsername.isNotBlank() &&
+                hostIp.isNotBlank() &&
+                portText.isNotBlank() &&
+                password.isNotBlank()
         ) {
             Text(text = "Save")
         }
@@ -204,7 +208,7 @@ private fun BorderedPasswordField(
         value = value,
         onValueChange = onValueChange,
         modifier = modifier
-            .border(width = 4.dp, color = borderColor, shape = shape)
+            .border(width = 3.dp, color = borderColor, shape = shape)
             .clip(shape),
         label = { Text(text = label) },
         singleLine = true,
