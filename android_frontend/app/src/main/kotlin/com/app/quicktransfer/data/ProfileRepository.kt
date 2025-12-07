@@ -90,6 +90,107 @@ class ProfileRepository private constructor(
         return System.currentTimeMillis()
     }
 
+    // PUBLIC_INTERFACE
+    /**
+     * Returns a profile by its string id or null if not found.
+     *
+     * Parameters:
+     * - id: Profile id (UUID string)
+     *
+     * Returns:
+     * - Profile or null if not found
+     */
+    fun getProfileById(id: String): Profile? {
+        return profilesState.value.find { it.id == id }
+    }
+
+    // PUBLIC_INTERFACE
+    /**
+     * Updates an existing profile with the provided fields.
+     *
+     * Behavior:
+     * - If isDefault is true, marks this profile as the only default and clears default on others.
+     * - If the profile was the current default and isDefault is set to false, clears the default id,
+     *   resulting in no default profile.
+     * - If the id is not found, this is a no-op.
+     */
+    suspend fun updateProfile(
+        id: String,
+        name: String,
+        username: String,
+        host: String,
+        port: Int,
+        password: String,
+        isDefault: Boolean
+    ) {
+        val existing = profilesState.value
+        if (existing.none { it.id == id }) {
+            // Nothing to update
+            return
+        }
+
+        val currentDefaultId = prefs.getString(DEFAULT_PROFILE_ID_KEY, null)
+        val updatedList: List<Profile> = if (isDefault) {
+            // Set this as the only default
+            prefs.edit().putString(DEFAULT_PROFILE_ID_KEY, id).apply()
+            existing.map { p ->
+                if (p.id == id) {
+                    Profile(
+                        id = p.id,
+                        name = name,
+                        host = host,
+                        port = port,
+                        username = username,
+                        password = password,
+                        isDefault = true
+                    )
+                } else {
+                    p.copy(isDefault = false)
+                }
+            }
+        } else {
+            if (currentDefaultId == id) {
+                // Turning off default for the current default; clear default id and ensure none are default
+                prefs.edit().remove(DEFAULT_PROFILE_ID_KEY).apply()
+                existing.map { p ->
+                    if (p.id == id) {
+                        Profile(
+                            id = p.id,
+                            name = name,
+                            host = host,
+                            port = port,
+                            username = username,
+                            password = password,
+                            isDefault = false
+                        )
+                    } else {
+                        p.copy(isDefault = false)
+                    }
+                }
+            } else {
+                // Not affecting the current default; just update fields
+                existing.map { p ->
+                    if (p.id == id) {
+                        Profile(
+                            id = p.id,
+                            name = name,
+                            host = host,
+                            port = port,
+                            username = username,
+                            password = password,
+                            isDefault = false
+                        )
+                    } else {
+                        p
+                    }
+                }
+            }
+        }
+
+        saveProfilesToPrefs(updatedList)
+        profilesState.value = updatedList
+    }
+
     private fun loadProfilesFromPrefs(): List<Profile> {
         val raw = prefs.getString(PROFILES_KEY, null) ?: return emptyList()
         return try {

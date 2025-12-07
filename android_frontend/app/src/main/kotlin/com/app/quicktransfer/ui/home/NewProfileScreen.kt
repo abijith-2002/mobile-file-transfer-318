@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -29,6 +28,8 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,30 +47,36 @@ import com.app.quicktransfer.data.ProfileRepository
 import kotlinx.coroutines.launch
 
 /**
- * A screen for creating a new connection profile. It includes Material 3 input fields
- * for Profile Name, Host Username, Host IP, Port, and Password, all styled with 16dp
- * rounded corners and a 2dp border, and an Elevated Save button centered horizontally.
+ * A screen for creating or editing a connection profile. It includes Material 3 input fields
+ * for Profile Name, Host Username, Password, Host IP, and Port, all styled with rounded corners,
+ * and an Elevated Save button centered horizontally.
  *
  * Behavior:
  * - Save is disabled if any field is empty.
- * - On Save, persists the profile via ProfileRepository and navigates back (calls onBack()).
+ * - On Save:
+ *   - If creating, persists a new profile via ProfileRepository and navigates back.
+ *   - If editing (profileId provided), updates the existing profile (no duplicate) and navigates back.
  *
  * Parameters:
- * - repository: Room-backed repository used to persist the profile.
+ * - repository: Profile repository used to persist the profile.
+ * - profileId: Optional profile id; when provided, the screen initializes in edit mode.
  * - modifier: Optional modifier for this screen.
  * - onBack: Callback invoked when the user taps the back icon or after successful save.
  *
  * Returns:
  * - None. Renders the UI.
  */
- // PUBLIC_INTERFACE
+// PUBLIC_INTERFACE
 @Composable
 fun NewProfileScreen(
     repository: ProfileRepository,
+    profileId: String? = null,
     modifier: Modifier = Modifier,
     onBack: () -> Unit = {}
 ) {
-    // Local state as no ViewModel/state hoisting is present for this screen yet
+    val isEditing = profileId != null
+
+    // Local state for form fields
     var profileName by remember { mutableStateOf("") }
     var hostUsername by remember { mutableStateOf("") }
     var hostIp by remember { mutableStateOf("") }
@@ -77,6 +84,23 @@ fun NewProfileScreen(
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var isDefault by remember { mutableStateOf(false) }
+
+    // If editing, observe profiles to pre-fill initial state from the selected profile
+    val profiles by repository.profiles.collectAsState(initial = emptyList())
+    val existingProfile = if (isEditing) profiles.find { it.id == profileId } else null
+    var didPrefill by remember(profileId) { mutableStateOf(false) }
+
+    LaunchedEffect(existingProfile?.id) {
+        if (!didPrefill && existingProfile != null) {
+            profileName = existingProfile.name
+            hostUsername = existingProfile.username
+            hostIp = existingProfile.host
+            portText = existingProfile.port.toString()
+            password = existingProfile.password
+            isDefault = existingProfile.isDefault
+            didPrefill = true
+        }
+    }
 
     val scrollState = rememberScrollState()
     val shape = RoundedCornerShape(16.dp)
@@ -99,7 +123,7 @@ fun NewProfileScreen(
                     Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Back")
                 }
                 Text(
-                    text = "New Profile",
+                    text = if (isEditing) "Edit Profile" else "New Profile",
                     style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.padding(start = 4.dp)
                 )
@@ -168,8 +192,6 @@ fun NewProfileScreen(
                 )
             }
 
-            // (Password field moved directly under Host Username)
-
             // 'Default' switch row to mark profile as default
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -189,14 +211,28 @@ fun NewProfileScreen(
                 onClick = {
                     val port = portText.toIntOrNull() ?: 22
                     scope.launch {
-                        repository.addProfile(
-                            name = profileName.trim(),
-                            username = hostUsername.trim(),
-                            host = hostIp.trim(),
-                            port = port,
-                            password = password,
-                            isDefault = isDefault
-                        )
+                        if (isEditing && profileId != null) {
+                            // Update existing profile (no duplicate)
+                            repository.updateProfile(
+                                id = profileId,
+                                name = profileName.trim(),
+                                username = hostUsername.trim(),
+                                host = hostIp.trim(),
+                                port = port,
+                                password = password,
+                                isDefault = isDefault
+                            )
+                        } else {
+                            // Create new profile
+                            repository.addProfile(
+                                name = profileName.trim(),
+                                username = hostUsername.trim(),
+                                host = hostIp.trim(),
+                                port = port,
+                                password = password,
+                                isDefault = isDefault
+                            )
+                        }
                         onBack()
                     }
                 },
