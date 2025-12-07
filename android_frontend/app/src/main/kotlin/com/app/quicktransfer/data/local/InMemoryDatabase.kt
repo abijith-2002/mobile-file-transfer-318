@@ -24,6 +24,7 @@ internal object InMemoryAppDatabase : AppDatabase() {
     override fun connectionDao(): ConnectionDao = connectionDaoImpl
     override fun transferHistoryDao(): TransferHistoryDao = transferHistoryDaoImpl
 
+    @android.annotation.SuppressLint("RestrictedApi")
     override fun createInvalidationTracker(): InvalidationTracker {
         // No-op invalidation tracker for in-memory fallback
         return InvalidationTracker(
@@ -39,12 +40,17 @@ internal object InMemoryAppDatabase : AppDatabase() {
     override fun createOpenHelper(config: DatabaseConfiguration): SupportSQLiteOpenHelper {
         // No underlying SQLite database in fallback; return a no-op helper
         return object : SupportSQLiteOpenHelper {
-            override fun getDatabaseName(): String? = "in_memory"
+            // Recent AndroidX SQLite versions expose these as properties in Kotlin
+            override val databaseName: String? get() = "in_memory"
+
             override fun setWriteAheadLoggingEnabled(enabled: Boolean) { /* no-op */ }
-            override fun getWritableDatabase(): SupportSQLiteDatabase {
-                throw UnsupportedOperationException("InMemory fallback has no SQLite database")
-            }
-            override fun getReadableDatabase(): SupportSQLiteDatabase = getWritableDatabase()
+
+            override val writableDatabase: SupportSQLiteDatabase
+                get() = throw UnsupportedOperationException("InMemory fallback has no SQLite database")
+
+            override val readableDatabase: SupportSQLiteDatabase
+                get() = writableDatabase
+
             override fun close() { /* no-op */ }
         }
     }
