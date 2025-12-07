@@ -40,7 +40,6 @@ androidApplication {
         // Room persistence library (runtime only; KSP not configured in DCL)
         implementation("androidx.room:room-runtime:2.6.1")
         implementation("androidx.room:room-ktx:2.6.1")
-
     }
 
     // Declarative testing block to add unit test dependencies
