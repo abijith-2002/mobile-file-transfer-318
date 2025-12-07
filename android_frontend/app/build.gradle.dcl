@@ -31,6 +31,8 @@ androidApplication {
         implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.6")
         implementation("androidx.core:core-ktx:1.13.1")
         implementation("androidx.annotation:annotation:1.9.1")
+        // Prefer JetBrains annotations to avoid conflicts with legacy com.intellij annotations
+        implementation("org.jetbrains:annotations:24.1.0")
         // Tooling (only used in debug but included explicitly to ensure previews compile)
         implementation("androidx.compose.ui:ui-tooling:1.7.4")
         implementation("androidx.compose.ui:ui-test-manifest:1.7.4")
