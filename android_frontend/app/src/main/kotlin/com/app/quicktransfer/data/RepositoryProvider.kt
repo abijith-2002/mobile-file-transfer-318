@@ -5,7 +5,10 @@ import com.app.quicktransfer.data.local.AppDatabase
 
 // PUBLIC_INTERFACE
 /**
- * Simple factory/provider for repositories backed by a Room database instance.
+ * Simple factory/provider for repositories.
+ *
+ * Profiles are backed by SharedPreferences (replacing Room).
+ * Connections and Transfer History remain backed by Room.
  *
  * Usage:
  * val profileRepo = RepositoryProvider.profileRepository(context)
@@ -16,12 +19,10 @@ object RepositoryProvider {
 
     // PUBLIC_INTERFACE
     /**
-     * Provides ProfileRepository using Room where possible, falling back to in-memory if
-     * Room initialization fails.
+     * Provides ProfileRepository backed by SharedPreferences.
      */
     fun profileRepository(context: Context): ProfileRepository {
-        val db = AppDatabase.getInstance(context.applicationContext)
-        return ProfileRepository(db.profileDao())
+        return ProfileRepository.getInstance(context.applicationContext)
     }
 
     // PUBLIC_INTERFACE
