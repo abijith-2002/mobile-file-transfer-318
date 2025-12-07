@@ -61,8 +61,6 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "quick_transfer.db"
                 )
-                    // For early development we prefer destructive migration if the schema changes.
-                    .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
                 instance

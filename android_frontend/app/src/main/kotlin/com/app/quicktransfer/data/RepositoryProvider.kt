@@ -2,7 +2,6 @@ package com.app.quicktransfer.data
 
 import android.content.Context
 import com.app.quicktransfer.data.local.AppDatabase
-import com.app.quicktransfer.data.local.InMemoryProfileDao
 
 // PUBLIC_INTERFACE
 /**
@@ -21,12 +20,8 @@ object RepositoryProvider {
      * Room initialization fails.
      */
     fun profileRepository(context: Context): ProfileRepository {
-        return try {
-            val db = AppDatabase.getInstance(context)
-            ProfileRepository(db.profileDao())
-        } catch (_: Throwable) {
-            ProfileRepository(InMemoryProfileDao())
-        }
+        val db = AppDatabase.getInstance(context.applicationContext)
+        return ProfileRepository(db.profileDao())
     }
 
     // PUBLIC_INTERFACE
