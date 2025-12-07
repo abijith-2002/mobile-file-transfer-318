@@ -37,7 +37,7 @@ androidApplication {
         implementation("androidx.compose.ui:ui-tooling:1.7.4")
         implementation("androidx.compose.ui:ui-test-manifest:1.7.4")
 
-        // Room persistence library (runtime only; no annotation processor to avoid com.intellij:annotations conflicts)
+        // Room persistence library (runtime only; KSP not configured in DCL)
         implementation("androidx.room:room-runtime:2.6.1")
         implementation("androidx.room:room-ktx:2.6.1")
 

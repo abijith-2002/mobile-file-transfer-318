@@ -60,7 +60,7 @@ abstract class AppDatabase : RoomDatabase() {
                     Room.databaseBuilder(
                         context.applicationContext,
                         AppDatabase::class.java,
-                        "quick_transfer.db"
+                        "quicktransfer.db"
                     )
                         // Destructive migration fallback to avoid crashes if schema version changes
                         .fallbackToDestructiveMigration()

@@ -29,7 +29,7 @@ object RepositoryProvider {
      * Provides ConnectionRepository backed by Room.
      */
     fun connectionRepository(context: Context): ConnectionRepository {
-        val db = AppDatabase.getInstance(context)
+        val db = AppDatabase.getInstance(context.applicationContext)
         return ConnectionRepository(db.connectionDao())
     }
 
@@ -38,7 +38,7 @@ object RepositoryProvider {
      * Provides TransferHistoryRepository backed by Room.
      */
     fun transferHistoryRepository(context: Context): TransferHistoryRepository {
-        val db = AppDatabase.getInstance(context)
+        val db = AppDatabase.getInstance(context.applicationContext)
         return TransferHistoryRepository(db.transferHistoryDao())
     }
 }
