@@ -40,6 +40,8 @@ androidApplication {
         // Room persistence library
         implementation("androidx.room:room-runtime:2.6.1")
         implementation("androidx.room:room-ktx:2.6.1")
+        // DCL does not support ksp() directly; include compiler as an implementation to avoid resolution errors
+        implementation("androidx.room:room-compiler:2.6.1")
 
     }
 

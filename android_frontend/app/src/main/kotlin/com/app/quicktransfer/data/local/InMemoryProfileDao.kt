@@ -61,4 +61,12 @@ class InMemoryProfileDao : ProfileDao {
     override suspend fun getById(id: Long): ProfileEntity? {
         return itemsState.value.find { it.id == id }
     }
+
+    /**
+     * Clears all in-memory profiles and resets id counter.
+     */
+    fun clear() {
+        itemsState.value = emptyList()
+        nextId = 1L
+    }
 }
