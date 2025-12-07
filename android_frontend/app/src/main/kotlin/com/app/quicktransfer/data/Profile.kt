@@ -11,6 +11,7 @@ package com.app.quicktransfer.data
  * - port: SSH port (default 22)
  * - username: Host username (optional)
  * - password: Host password (optional, stored in plaintext for now)
+ * - isDefault: Whether this profile is marked as the default profile
  */
 data class Profile(
     /** Unique profile ID (UUID/string) */
@@ -24,5 +25,7 @@ data class Profile(
     /** Username on the host for SSH/SFTP */
     val username: String = "",
     /** Plaintext password (temporary; replace with secure storage later) */
-    val password: String = ""
+    val password: String = "",
+    /** Indicates if this profile is the default one */
+    val isDefault: Boolean = false
 )

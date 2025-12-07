@@ -47,6 +47,7 @@ class ProfileRepository private constructor(
      * - host: Host/IP address
      * - port: SSH port
      * - password: Plaintext password (temporary; replace with secure storage)
+     * - isDefault: If true, mark this profile as the default and unset any previous default
      *
      * Returns:
      * - A synthetic row ID (current time millis), maintained for API compatibility.
@@ -56,21 +57,33 @@ class ProfileRepository private constructor(
         username: String,
         host: String,
         port: Int,
-        password: String
+        password: String,
+        isDefault: Boolean
     ): Long {
+        val newId = UUID.randomUUID().toString()
         val newProfile = Profile(
-            id = UUID.randomUUID().toString(),
+            id = newId,
             name = name,
             host = host,
             port = port,
             username = username,
-            password = password
+            password = password,
+            isDefault = isDefault
         )
 
-        // Update in-memory state (prepend newest)
-        val updated = listOf(newProfile) + profilesState.value
+        // Ensure only one profile is default at a time
+        val updated = if (isDefault) {
+            listOf(newProfile.copy(isDefault = true)) +
+                profilesState.value.map { it.copy(isDefault = false) }
+        } else {
+            listOf(newProfile.copy(isDefault = false)) + profilesState.value
+        }
+
         // Persist to SharedPreferences
         saveProfilesToPrefs(updated)
+        if (isDefault) {
+            prefs.edit().putString(DEFAULT_PROFILE_ID_KEY, newId).apply()
+        }
         profilesState.value = updated
 
         // Return a synthetic long id for compatibility (not used by callers)
@@ -81,17 +94,25 @@ class ProfileRepository private constructor(
         val raw = prefs.getString(PROFILES_KEY, null) ?: return emptyList()
         return try {
             val arr = JSONArray(raw)
+            val defaultId = prefs.getString(DEFAULT_PROFILE_ID_KEY, null)
             val result = ArrayList<Profile>(arr.length())
             for (i in 0 until arr.length()) {
                 val obj = arr.optJSONObject(i) ?: continue
+                val id = obj.optString("id", UUID.randomUUID().toString())
+                val isDefault = if (defaultId != null) {
+                    id == defaultId
+                } else {
+                    obj.optBoolean("isDefault", false)
+                }
                 result.add(
                     Profile(
-                        id = obj.optString("id", UUID.randomUUID().toString()),
+                        id = id,
                         name = obj.optString("name", ""),
                         host = obj.optString("host", ""),
                         port = obj.optInt("port", 22),
                         username = obj.optString("username", ""),
-                        password = obj.optString("password", "")
+                        password = obj.optString("password", ""),
+                        isDefault = isDefault
                     )
                 )
             }
@@ -111,6 +132,7 @@ class ProfileRepository private constructor(
                 .put("port", p.port)
                 .put("username", p.username)
                 .put("password", p.password)
+                .put("isDefault", p.isDefault)
             arr.put(obj)
         }
         prefs.edit().putString(PROFILES_KEY, arr.toString()).apply()
@@ -119,6 +141,7 @@ class ProfileRepository private constructor(
     companion object {
         private const val PREFS_NAME = "profiles_store"
         private const val PROFILES_KEY = "profiles_json"
+        private const val DEFAULT_PROFILE_ID_KEY = "default_profile_id"
 
         @Volatile
         private var INSTANCE: ProfileRepository? = null

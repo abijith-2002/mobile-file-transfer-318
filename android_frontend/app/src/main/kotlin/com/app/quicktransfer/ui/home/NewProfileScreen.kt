@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -26,6 +27,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.Switch
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -74,6 +76,7 @@ fun NewProfileScreen(
     var portText by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+    var isDefault by remember { mutableStateOf(false) }
 
     val scrollState = rememberScrollState()
     val shape = RoundedCornerShape(16.dp)
@@ -122,32 +125,7 @@ fun NewProfileScreen(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
             )
 
-            // Host IP (allow decimal keyboard for dot entry)
-            BorderedTextField(
-                value = hostIp,
-                onValueChange = { hostIp = it },
-                label = "Host IP",
-                shape = shape,
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
-            )
-
-            // Port (numeric)
-            BorderedTextField(
-                value = portText,
-                onValueChange = { text ->
-                    // Accept only digits
-                    if (text.all { it.isDigit() }) {
-                        portText = text
-                    }
-                },
-                label = "Port",
-                shape = shape,
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-            )
-
-            // Password (mask with toggle)
+            // Password (immediately under Host Username)
             BorderedPasswordField(
                 value = password,
                 onValueChange = { password = it },
@@ -157,6 +135,53 @@ fun NewProfileScreen(
                 passwordVisible = passwordVisible,
                 onToggleVisibility = { passwordVisible = !passwordVisible }
             )
+
+            // Host IP and Port on same row (80% / 20%)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Host IP (allow decimal keyboard for dot entry)
+                BorderedTextField(
+                    value = hostIp,
+                    onValueChange = { hostIp = it },
+                    label = "Host IP",
+                    shape = shape,
+                    modifier = Modifier.weight(0.8f),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                )
+
+                // Port (numeric)
+                BorderedTextField(
+                    value = portText,
+                    onValueChange = { text ->
+                        // Accept only digits
+                        if (text.all { it.isDigit() }) {
+                            portText = text
+                        }
+                    },
+                    label = "Port",
+                    shape = shape,
+                    modifier = Modifier.weight(0.2f),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                )
+            }
+
+            // (Password field moved directly under Host Username)
+
+            // 'Default' switch row to mark profile as default
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(text = "Default", style = MaterialTheme.typography.bodyLarge)
+                Switch(
+                    checked = isDefault,
+                    onCheckedChange = { checked -> isDefault = checked }
+                )
+            }
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -169,7 +194,8 @@ fun NewProfileScreen(
                             username = hostUsername.trim(),
                             host = hostIp.trim(),
                             port = port,
-                            password = password
+                            password = password,
+                            isDefault = isDefault
                         )
                         onBack()
                     }
